@@ -1,8 +1,30 @@
 version: '3'
 services:
+  database:
+    container_name: database
+    image: postgis/postgis:15-3.3
+    # Required when running on platform other than amd64, like Apple M1/M2:
+    # platform: linux/amd64
+    volumes:
+      - postgres:/var/lib/postgresql/data
+    networks:
+      - tweets-net
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: user
+      POSTGRES_HOST_AUTH_METHOD: trust
   tweets:
     build:
       context: ./
       dockerfile: Dockerfile
     ports:
       - 3000:3000
+    networks:
+        - tweets-net
+    depends_on:
+      - database
+networks:
+  tweets-net:
+volumes:
+    postgres:

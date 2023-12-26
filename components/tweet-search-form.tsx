@@ -3,11 +3,10 @@ import { zodResolver } from "@hookform/resolvers/zod"
 import {  useForm } from "react-hook-form"
 import * as z from "zod"
 import { Calendar } from "@/components/ui/calendar";
-import {useState,useRef} from 'react'
+import {useState,useRef,useMemo} from 'react'
 import { Loader2,Calendar as CalendarIcon } from "lucide-react"
 import { cn } from "@/lib/utils"
-import { format,parseISO } from "date-fns"
-
+import { format,parseISO,subDays,getHours, getMinutes, getSeconds } from "date-fns"
 import {
   Popover,
   PopoverContent,
@@ -31,7 +30,12 @@ import {
   SelectValue,
 } from "@/components/ui/select"
 
-import { Input } from "@/components/ui/input"
+import { Input } from "@/components/ui/input";
+function formatTime(time:string) {
+ return `${time}`.padStart(2, '0')
+}
+
+
 const formSchema = z.object({
   publish_time: z
   .any(),
@@ -50,14 +54,48 @@ export type FormValues = z.infer<typeof formSchema>
 interface P  {
   handleSearch: (data: FormValues) => void
 }
-const publish_time =  new Date();
 
 const SearchForm = ({handleSearch}:P) => {
   const [open, setOpen] = useState(false)
+  const [date, setDate] = useState<any>({
+    from: new Date(),
+    to: subDays(new Date(), 1)
+  })
+  const time = useMemo(()=>{
+    const now = new Date();
+    return {
+      hour:getHours(now),
+      minute: getMinutes(now)
+    }
+  },[])
+  const [start,setStart] = useState<any>({
+    hour:time.hour,
+    minute:time.minute,
+    second:0,
+    millisecond:0
+  })
+  const [end,setEnd] = useState<any>({
+    hour:time.hour,
+    minute:time.minute,
+    second:0,
+    millisecond:0
+  })
+
+  const setStartTimeValue= (value:any)=>{
+    setStart(value)
+  }
+  const setEndTimeValue= (value:any)=>{
+    setEnd(value)
+  }
+
+
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues:{
-       publish_time:'',
+       publish_time:{
+        from: '',
+        to: ''
+       },
        tags:'',
        category:'',
        valuable:'undefined'
@@ -69,16 +107,13 @@ const SearchForm = ({handleSearch}:P) => {
     const d = {
       tags:data.tags ? JSON.stringify(data.tags.split(',')) : '',
       category:data.category ?  JSON.stringify(data.category.split(',')) : '',
-      publish_time:data.publish_time ? format(data.publish_time,'yyyy-MM-dd HH:mm:ss') : ''
+      from:data.publish_time && data.publish_time.from ? `${format(data.publish_time.from, 'yyyy-MM-dd')} ${formatTime(start.hour)}:${formatTime(start.minute)}` : '',
+      to:data.publish_time && data.publish_time.to ?`${format(data.publish_time.to, 'yyyy-MM-dd')} ${formatTime(end.hour)}:${formatTime(end.minute)}` : ''
     } as any;
     if(data.valuable !== 'undefined'){
       d.valuable = data.valuable === 'true' ? true : false
     }
-    debugger;
     handleSearch(d)
-  }
-  const handleCreate = ()=>{
-
   }
 
   return(
@@ -101,8 +136,11 @@ const SearchForm = ({handleSearch}:P) => {
                         !field.value && "text-muted-foreground"
                       )}
                     >
-                      {field.value ? (
-                        format(field.value, "PPP")
+                      {field.value.from ? (
+                        <div className="flex flex-row justify-between">
+                          <p className="mr-4">{`${format(field.value.from, 'yyyy-MM-dd')} ${formatTime(start.hour)}:${formatTime(start.minute)}`}</p>
+                          <p>{`${format(field.value.to? field.value.to : new Date(), 'yyyy-MM-dd')} ${formatTime(end.hour)}:${formatTime(end.minute)}`}</p>
+                        </div>
                       ) : (
                         <span>Pick a date</span>
                       )}
@@ -112,18 +150,18 @@ const SearchForm = ({handleSearch}:P) => {
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0" align="start" >
                   <Calendar
-                    mode="single"
+                    mode="range"
+                    initialFocus
+                    defaultMonth={field.value?.from}
                     selected={field.value}
                     onSelect={(e)=>{
-                      // @ts-ignore
                       field.onChange(e)
-                      setOpen(false)
-                      }
-                    }
-                    disabled={(date) =>
-                      date > new Date() || date < new Date("1900-01-01")
-                    }
-                    initialFocus
+                    }}
+                    numberOfMonths={2}
+                    start={start}
+                    end={end}
+                    setStartTimeValue={setStartTimeValue}
+                    setEndTimeValue={setEndTimeValue}
                   />
                 </PopoverContent>
               </Popover>
