@@ -66,8 +66,8 @@ export const columnsFunc = ({isEdit}:CP):ColumnDef<TweetItem>[]=>{
     accessorKey: "valuable",
     header: 'valuable',
     cell: ({ row }) => {
-      let status = row.getValue("valuable") as boolean;
-      return <SwitchValuable checked={status} row={row.original}/>
+      let value = (row.getValue("valuable") as string).toString();
+      return <SwitchValuable value={value} row={row.original}/>
     }
 
   },
