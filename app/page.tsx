@@ -25,7 +25,7 @@ function IndexPage() {
   const query = useMemo(()=>{
     let query = '';
     const list = ['publish_time','tags','category','valuable']
-    query =`since=${search.from}&until=${search.to}&tags=${search.tags}&category=${search.category}&limit=10&offset=${pageIndex*10}`
+    query =`since=${search.from||''}&until=${search.to||''}&tags=${search.tags||''}&category=${search.category||''}&limit=10&offset=${pageIndex*10}`
     query += `&valuable=${search.valuable || ''}`
     return query
   },[search,pageIndex])
