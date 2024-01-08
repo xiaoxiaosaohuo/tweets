@@ -26,9 +26,7 @@ function IndexPage() {
     let query = '';
     const list = ['publish_time','tags','category','valuable']
     query =`since=${search.from}&until=${search.to}&tags=${search.tags}&category=${search.category}&limit=10&offset=${pageIndex*10}`
-    if(search.valuable !== undefined){
-      query += `&valuable=${search.valuable}`
-    }
+    query += `&valuable=${search.valuable || ''}`
     return query
   },[search,pageIndex])
 
