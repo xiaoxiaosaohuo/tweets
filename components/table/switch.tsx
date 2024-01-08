@@ -9,26 +9,17 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select"
-type valuemapT = {
-    "true": boolean;
-    "false": boolean;
-    "undefined": undefined;
-}
-const valuemap:valuemapT = {
-  'true':true,
-  'false':false,
-  'undefined':undefined
-}
+
 
 
 const SwitchValuable = ({value,row}:{value:string;row:any})=>{
   const [selectValue,setValue] = useState(value);
-  const onValuableChange = async (value:keyof valuemapT) => {
+  const onValuableChange = async (value:string) => {
     const {id,tags,category,...rest} = row;
     setValue(value)
     const response = await fetch(`http://23.94.83.46:8000/tweet/${id}`, {
       method: 'PUT',
-      body:JSON.stringify({...rest,my_comments:'',tags:tags,category:category,valuable:valuemap[value]}),
+      body:JSON.stringify({...rest,my_comments:'',tags:tags,category:category,valuable:value}),
       headers:{
         Accept:"application/json",
         'Content-Type':"application/json",
@@ -47,9 +38,9 @@ const SwitchValuable = ({value,row}:{value:string;row:any})=>{
       </SelectTrigger>
       <SelectContent>
         <SelectGroup>
-          <SelectItem value={'true'}>true</SelectItem>
-          <SelectItem value={'false'}>false</SelectItem>
-          <SelectItem value={'undefined'}>undefined</SelectItem>
+          <SelectItem value={'1'}>未定义</SelectItem>
+          <SelectItem value={'2'}>有价值</SelectItem>
+          <SelectItem value={'3'}>无价值</SelectItem>
         </SelectGroup>
       </SelectContent>
     </Select>

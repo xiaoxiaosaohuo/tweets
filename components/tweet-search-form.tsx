@@ -47,7 +47,24 @@ const formSchema = z.object({
     .string()
 
 })
-const itemStatus = ['true','false','undefined']
+const itemStatus = [
+  {
+    value:'' ,
+    label:'全部'
+  },
+  {
+    value:'1' ,
+    label:'未定义'
+  },
+  {
+    value:'2' ,
+    label:'有价值'
+  },
+  {
+    value:'3' ,
+    label:'无价值'
+  }
+]
 
 export type FormValues = z.infer<typeof formSchema>
 
@@ -110,8 +127,8 @@ const SearchForm = ({handleSearch}:P) => {
       from:data.publish_time && data.publish_time.from ? `${format(data.publish_time.from, 'yyyy-MM-dd')} ${formatTime(start.hour)}:${formatTime(start.minute)}` : '',
       to:data.publish_time && data.publish_time.to ?`${format(data.publish_time.to, 'yyyy-MM-dd')} ${formatTime(end.hour)}:${formatTime(end.minute)}` : ''
     } as any;
-    if(data.valuable !== 'undefined'){
-      d.valuable = data.valuable === 'true' ? true : false
+    if(data.valuable !== ''){
+      d.valuable = data.valuable
     }
     handleSearch(d)
   }
@@ -210,7 +227,7 @@ const SearchForm = ({handleSearch}:P) => {
               </FormControl>
               <SelectContent className="max-h-[200px]">
                 {itemStatus.map((item) => (
-                  <SelectItem key={item} value={item}>{item}</SelectItem>
+                  <SelectItem key={item.value} value={item.value}>{item.label}</SelectItem>
                 ))}
               </SelectContent>
             </Select>

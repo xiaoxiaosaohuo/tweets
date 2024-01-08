@@ -15,7 +15,7 @@ export type TweetItem = {
   category?:string[]
   tags?:string[]
   comments?:string
-  valuable?:boolean
+  valuable?:string
   [key:string]:any
 }
 type CP = {
